@@ -1,4 +1,5 @@
 import { useState,useCallback, useEffect, useRef} from 'react'
+import PasswordHistory from './components/passwordHistory.jsx'
 
 function App() {
   const [length,setLength] = useState(8);
@@ -7,6 +8,7 @@ function App() {
   const [password, setPassword] = useState("");
   const [theme, setTheme] = useState("black")
 
+  const [historyCards, setHistoryCards] = useState([]);
   // useRef
   const passwdRef = useRef(null);
   // use of useCallBack hook to generate password
@@ -34,12 +36,17 @@ function App() {
     passwdRef.current?.select(); 
     passwdRef.current?.setSelectionRange(0,999);
     window.navigator.clipboard.writeText(password)
+    addCard();
   },[password])
 
   useEffect(()=>{
     passwordGenerator()
   },[length,requireNumbers,requireCharecters, passwordGenerator]);
 
+  const addCard = () => {
+    const newCard = { id: historyCards.length + 1, content: password };
+    setHistoryCards([...historyCards, newCard]);
+  };
 
 
 
@@ -58,7 +65,7 @@ function App() {
             className="outline-none w-full py-1 px-3"
             placeholder="password"
             readOnly
-                ref={passwdRef}
+            ref={passwdRef}
 
           />
           <button
@@ -70,7 +77,7 @@ function App() {
           </button>
           <button
             onClick={copyPasswdToClipboard}
-            className='outline-none bg-white text-gray-800 px-1 py-1 shrink-0 flex items-center'>
+            className='outline-none bg-white text-gray-800 px-1 py-1 shrink-0 flex items-center hover:text-orange-500'>
             <span className="material-symbols-outlined">
             content_copy
             </span>
@@ -111,7 +118,17 @@ function App() {
               <label htmlFor="characterInput"> Special characters</label>
             </div>
           </div>
+
+      <div>
+
+      <h2>History</h2>
+
+        {historyCards.map((history) => (
+          <PasswordHistory key={history.id} password={history.content}/>
+        ))}
+      </div>
         </div>
+
       
     </>
   )
