@@ -45,10 +45,14 @@ function App() {
     passwordGenerator()
   },[length,requireNumbers,requireCharecters,requireAlphabets, passwordGenerator]);
 
-  const addCard = () => {
+ const addCard = useCallback(() => {
     const newCard = { id: historyCards.length + 1, content: password };
-    setHistoryCards([...historyCards, newCard]);
-  };
+    setHistoryCards(prevCards => [...prevCards, newCard]);
+  }, [password, historyCards.length]);
+
+  const clearHistory = useCallback(() => {
+    setHistoryCards([]);
+  }, []);
 
 
 
@@ -132,15 +136,26 @@ function App() {
             </div>
           </div>
 
-      <div>
+    <div className="flex justify-between items-center shadow rounded-lg overflow-hidden  max-w-full p-1 my-1">
 
-      <h3 className="my-2">Clipboard History :</h3>
-
-        {historyCards.map((history) => (
-          <PasswordHistory key={history.id} password={history.content}/>
-        ))}
+        <div> 
+          <h3 className="my-2">Clipboard History :</h3>
+        </div>
+        <div className="flex justify-end text-xs">
+            <p> Clear History</p>
+          <button className="hover:text-red-500 text-orange-50" onClick={clearHistory}>
+            <span className="material-symbols-outlined">
+            delete
+            </span>
+          </button>
+        </div>
       </div>
-      </div>
+        <div>
+          {historyCards.map((history) => (
+            <PasswordHistory key={history.id} password={history.content}/>
+          ))}
+        </div>
+    </div>
 
       
     </>
