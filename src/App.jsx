@@ -5,6 +5,7 @@ function App() {
   const [length,setLength] = useState(8);
   const [requireNumbers, setRequireNumbers]= useState(false);
   const [requireCharecters, setRequireCharecters] = useState(false);
+  const [requireAlphabets, setRequireAlphabets] = useState(false);
   const [password, setPassword] = useState("");
   const [theme, setTheme] = useState("black")
 
@@ -14,23 +15,24 @@ function App() {
   // use of useCallBack hook to generate password
   const passwordGenerator = useCallback(()=>{
     let passwd = "";
+    let theString="";
     let alphabetsForPasswd="ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
     let numbersForPasswd= "0123456789";
     let specialCharectersForPasswd= "~!@#$%^&*()_,.?{}[]`"
 
     
 
-    if(requireNumbers)  alphabetsForPasswd+= numbersForPasswd;
-    if(requireCharecters)  alphabetsForPasswd+= specialCharectersForPasswd;
+    if(requireAlphabets && requireNumbers && requireCharecters) theString = "";
+    if(requireAlphabets) theString += alphabetsForPasswd;
+    if(requireNumbers)  theString += numbersForPasswd;
+    if(requireCharecters)  theString += specialCharectersForPasswd;
 
-    console.log(alphabetsForPasswd)
     for(let i=0; i < length; i++){
-      let char =Math.floor(Math.random()*alphabetsForPasswd.length);
-      passwd += alphabetsForPasswd.charAt(char);
-      console.log(passwd);
+      let char =Math.floor(Math.random()*theString.length);
+      passwd += theString.charAt(char);
     }
     setPassword(passwd);
-  },[length, requireNumbers,requireCharecters, setPassword]);
+  },[length, requireNumbers,requireCharecters,requireAlphabets, setPassword]);
 
   const copyPasswdToClipboard = useCallback(()=>{
     passwdRef.current?.select(); 
@@ -41,7 +43,7 @@ function App() {
 
   useEffect(()=>{
     passwordGenerator()
-  },[length,requireNumbers,requireCharecters, passwordGenerator]);
+  },[length,requireNumbers,requireCharecters,requireAlphabets, passwordGenerator]);
 
   const addCard = () => {
     const newCard = { id: historyCards.length + 1, content: password };
@@ -52,14 +54,13 @@ function App() {
 
   return (
     <>
-          <div className="w-full max-w-md mx-auto  shadow-md rounded-lg px-2 py-3 my-8 bg-gray-800 text-orange-500">
+          <div className="w-full max-w-2xl mx-auto  shadow-md rounded-lg px-2 py-3 my-8 bg-gray-800 text-orange-500">
           <h1 className='text-white text-center my-3'>
           <span className="material-symbols-outlined">
             key_vertical
           </span>
               Password generator</h1>
-          <div className="flex shadow rounded-lg overflow-hidden mb-4">
-          <input
+          <div className="flex shadow rounded-lg overflow-hidden mb-4"> <input
             type ="text"
             value={password}
             className="outline-none w-full py-1 px-3"
@@ -84,7 +85,8 @@ function App() {
           </button>
           </div>
           <div className='flex text-sm gap-x-2'>
-            <div className='flex items-center gap-x-1'>
+            <div className='flex items-center gap-x-2'>
+                <label>Length: {length}</label>
               <input 
               type="range"
               min={8}
@@ -93,7 +95,18 @@ function App() {
               className='cursor-pointer'
               onChange={(e) => {setLength(e.target.value)}}
                 />
-                <label>Length: {length}</label>
+            </div>
+
+            <div className="flex items-center gap-x-1">
+              <input
+                  type="checkbox"
+                  defaultChecked={requireAlphabets}
+                  id="alphabetInput"
+                  onChange={() => {
+                      setRequireAlphabets((prev) => !prev )
+                  }}
+              />
+              <label htmlFor="alphabetInput">Alphabets</label>
             </div>
             <div className="flex items-center gap-x-1">
               <input
@@ -121,13 +134,13 @@ function App() {
 
       <div>
 
-      <h2>History</h2>
+      <h3 className="my-2">Clipboard History :</h3>
 
         {historyCards.map((history) => (
           <PasswordHistory key={history.id} password={history.content}/>
         ))}
       </div>
-        </div>
+      </div>
 
       
     </>
